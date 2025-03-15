@@ -1,0 +1,192 @@
+:root {
+            --bg: #f1f3f4;
+            --text: #000;
+            --input-bg: #ffffff;
+            --input-outline: #ccc;
+            --transition: 0.25s ease;
+        }
+
+        body.dark {
+            --bg: #1e1e1e;
+            --text: #fff;
+            --input-bg: #2d2d2d;
+            --input-outline: #646464;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            transition: background-color var(--transition), color var(--transition);
+        }
+
+        .tab-bar {
+            display: flex;
+            align-items: center;
+            background: var(--bg);
+            padding: 6px 6px 0 6px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            background: transparent;
+            padding: 6px 35px 6px 32px;
+            margin-right: 4px;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            white-space: nowrap;
+            position: relative;
+            display: flex;
+            align-items: center;
+            user-select: none;
+            transition: transform var(--transition), opacity var(--transition), background var(--transition);
+            opacity: 0;
+            transform: translateY(-10px);
+            box-sizing: border-box;
+            border-bottom: 2px solid var(--input-bg);
+        }
+        
+        .tab:hover {
+            background: var(--input-outline);
+        }
+
+        .tab.active {
+            background: var(--input-bg);
+        }
+
+        .tab .close {
+            position: absolute;
+            right: 8px;
+            top: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 100%;
+            padding-left: 5px;
+            padding-right: 5px;
+            padding-top: 2px;
+            padding-bottom: 2px;
+            transition: all var(--transition);
+        }
+        
+        .tab span {
+            font-size: 15px;
+        }
+        
+        .tab .close:hover {
+            background: var(--input-outline);
+        }
+
+        .tab img.favicon {
+            position: absolute;
+            left: 8px;
+            width: 16px;
+            height: 16px;
+            border: none;
+            outline: none;
+        }
+
+        .new-tab {
+            font-size: 16px;
+            padding: 0 4px;
+            border-radius: 100%;
+            cursor: pointer;
+            user-select: none;
+            transition: all var(--transition);
+        }
+        
+        .new-tab:hover {
+            background: var(--input-outline);
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: var(--input-bg);
+            border-top: 1px solid #ccc;
+            gap: 8px;
+            transition: background var(--transition);
+            border: none;
+        }
+
+        .toolbar input {
+            flex: 1;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid var(--input-outline);
+            border-radius: 50px;
+            background: var(--input-bg);
+            color: var(--text);
+            outline: none;
+            transition: background var(--transition), color var(--transition);
+        }
+        
+        .toolbar button {
+            padding: 6px 6px;
+            background: var(--tab-bg);
+            border: none;
+            border-radius: 100%;
+            cursor: pointer;
+            color: var(--text);
+            transition: all var(--transition);
+        }
+        
+        .toolbar button i {
+            width: 16px;
+        }
+
+        .toolbar button:hover {
+            background: var(--input-outline);
+        }
+        
+        .menu-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: var(--input-bg);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            width: 150px;
+            overflow: hidden;
+            opacity: 0;
+            transition: all var(--transition);
+        }
+
+        .menu button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            border-radius: 0;
+            border: none;
+            background: none;
+            cursor: pointer;
+            text-align: left;
+        }
+        
+        .menu button i {
+            margin-right: 10px;
+        }
+
+        .menu button:hover {
+            background: var(--input-outline);
+        }
+
+        iframe {
+            width: 100%;
+            height: calc(100vh - 90px);
+            border: none;
+            display: none;
+            opacity: 0;
+            transition: opacity var(--transition);
+        }
+
+        iframe.active {
+            display: block;
+            opacity: 1;
+        }
