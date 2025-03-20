@@ -1,4 +1,4 @@
-importScripts("/active/uv/uv.sw.js");
+importScripts("https://gimkit0.github.io/uv-static/active/uv/uv.sw.js");
 
 const sw = new UVServiceWorker();
 
