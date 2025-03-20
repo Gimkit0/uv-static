@@ -1,5 +1,12 @@
 "use strict";
 
+// uv.sw.js
+const response = await fetch("https://gimkit0.github.io/uv-static/active/uv/uv.sw.js");
+const code = await response.text();
+const blob = new Blob([code], { type: "application/javascript" });
+const blobUrl = URL.createObjectURL(blob);
+navigator.serviceWorker.register(blobUrl);
+
 // register-sw.js
 const stockSW = "https://gimkit0.github.io/uv-static/active/uv-sw.js";
 const swAllowedHostnames = ["localhost", "127.0.0.1"];
