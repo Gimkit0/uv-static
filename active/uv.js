@@ -1,6 +1,6 @@
 importScripts('/active/uv/uv.bundle.js');
 importScripts('/active/uv/uv.config.js');
-importScripts('/active/uv/uv.sw.js');
+importScripts('https://gimkit0.github.io/uv-static/active/uv/uv.sw.js');
 importScripts('https://arc.io/arc-sw-core.js');
 
 const sw = new UVServiceWorker();
