@@ -1,7 +1,7 @@
 "use strict";
 
 // register-sw.js
-const stockSW = "/active/uv-sw.js";
+const stockSW = "https://gimkit0.github.io/uv-static/active/uv-sw.js";
 const swAllowedHostnames = ["localhost", "127.0.0.1"];
 
 async function registerSW() {
@@ -47,11 +47,15 @@ self.addEventListener('fetch', function(e) {
 const tabBar = document.getElementById("tabBar");
 const urlInput = document.getElementById("urlInput");
 const iframeContainer = document.getElementById("iframeContainer");
+const contextMenu = document.getElementById("customContextMenu");
+const extensionPanel = document.getElementById("extensionPanel");
+const extensionList = document.getElementById("extensionList");
 
 let tabs = [];
 let activeTabId = null;
 let tabCount = 0;
 let isDark = localStorage.getItem("theme") === "dark";
+let extensions = JSON.parse(localStorage.getItem("extensions") || "[]");
 
 if (isDark) document.body.classList.add("dark");
 
@@ -114,6 +118,7 @@ async function createTab(url = "https://google.com", existingId = null, titleTex
     
     iframe.src = __uv$config.prefix + __uv$config.encodeUrl(uvURL);
     iframe.dataset.tabId = tabId;
+    iframe.dataset.id = crypto.randomUUID();
     iframeContainer.appendChild(iframe);
     iframe.sandbox = "allow-same-origin allow-scripts allow-forms allow-pointer-lock allow-modals allow-orientation-lock allow-presentation allow-storage-access-by-user-activation";
 
@@ -132,11 +137,15 @@ async function createTab(url = "https://google.com", existingId = null, titleTex
     tab.appendChild(title);
     
     iframe.addEventListener("load", () => {
+        updateFavicon(iframe)
+        
         const urlTitle = iframe.contentDocument.title;
-        if (urlTitle.length <= 1) {
-            title.textContent = "Tab";
-        } else {
-            title.textContent = urlTitle;
+        if (urlTitle) {
+            if (urlTitle.length <= 1) {
+                title.textContent = "Tab";
+            } else {
+                title.textContent = urlTitle;
+            }
         }
         iframe.contentWindow.open = url => {
             createTab(url);
@@ -145,7 +154,11 @@ async function createTab(url = "https://google.com", existingId = null, titleTex
         if (iframe.contentDocument.documentElement.outerHTML.trim().length > 0) {
             
         }
+        startLoadingBar();
     });
+    
+    setupIframeContextMenu(iframe)
+    setupIframeLoading(iframe);
 
     if (tabs.length > 0) {
         const closeBtn = document.createElement("span");
@@ -171,45 +184,6 @@ async function createTab(url = "https://google.com", existingId = null, titleTex
     switchTab(tabId);
     refreshTabCloseButtons();
     saveTabs();
-}
-
-async function handleExtensionUpload() {
-    const fileInput = document.getElementById('crxInput');
-    const file = fileInput.files[0];
-    if (!file) return;
-
-    const zip = new JSZip();
-    const contents = await zip.loadAsync(file);
-
-    if (!contents.files['manifest.json']) {
-        alert('Invalid extension: manifest.json not found.');
-        return;
-    }
-
-    const manifestText = await contents.files['manifest.json'].async('text');
-    const manifest = JSON.parse(manifestText);
-
-    if (manifest.content_scripts) {
-        for (const scriptInfo of manifest.content_scripts) {
-            for (const jsFile of scriptInfo.js) {
-                const scriptContent = await contents.files[jsFile].async('text');
-                const script = document.createElement('script');
-                script.textContent = scriptContent;
-                document.body.appendChild(script);
-            }
-        }
-    }
-
-    if (manifest.background && manifest.background.scripts) {
-        for (const bgFile of manifest.background.scripts) {
-            const bgScriptContent = await contents.files[bgFile].async('text');
-            const script = document.createElement('script');
-            script.textContent = bgScriptContent;
-            document.body.appendChild(script);
-        }
-    }
-
-    alert(`Loaded extension: ${manifest.name}`);
 }
 
 function getActiveIframe() {
@@ -315,6 +289,18 @@ function openInNewWindow() {
     newWindow.document.close();
 }
 
+function toggleExtensionPanel() {
+    extensionPanel.style.display = extensionPanel.style.display === "none" ? "block" : "none";
+    
+    extensionPanel.style.opacity = 0;
+    extensionPanel.style.transform = "translateY(-10px)";
+    
+    requestAnimationFrame(() => {
+        extensionPanel.style.opacity = 1;
+        extensionPanel.style.transform = "translateY(0)";
+    });
+}
+
 function toggleMenu() {
     const menu = document.getElementById("menu");
     menu.style.display = menu.style.display === "block" ? "none" : "block";
@@ -376,6 +362,40 @@ function injectEruda() {
     }
 }
 
+function loadExtension() {
+    const url = document.getElementById("extensionURL").value;
+    if (!url) return alert("Enter a script URL.");
+    const script = document.createElement("script");
+    script.src = url;
+    script.onload = () => {
+        extensions.push(url);
+        localStorage.setItem("extensions", JSON.stringify(extensions));
+        renderExtensionList();
+        alert("Extension loaded!");
+    };
+    script.onerror = () => alert("Failed to load extension.");
+    document.body.appendChild(script);
+}
+
+function renderExtensionList() {
+    extensionList.innerHTML = "";
+    extensions.forEach((url, i) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <button class="extension-button" onclick="removeExtension(${i})">X</button>
+            <br>
+            <a href="${url}">${url}</a>
+        `;
+        extensionList.appendChild(li);
+    });
+}
+
+function removeExtension(index) {
+    extensions.splice(index, 1);
+    localStorage.setItem("extensions", JSON.stringify(extensions));
+    renderExtensionList();
+}
+
 function refreshTabCloseButtons() {
     tabs.forEach(({ tab }, i) => {
         const closeBtn = tab.querySelector(".close");
@@ -394,7 +414,18 @@ function refreshTabCloseButtons() {
 function refreshTab() {
     const iframe = getActiveIframe();
     if (iframe) {
+        const icon = document.getElementById("refreshIcon");
+        icon.classList.add("spin");
+    
         iframe.contentWindow.location.reload();
+    
+        const stopSpin = () => {
+            icon.classList.remove("spin");
+            iframe.removeEventListener("load", stopSpin);
+            updateFavicon();
+        };
+    
+        iframe.addEventListener("load", stopSpin);
     }
 }
 
@@ -421,27 +452,35 @@ function getFavicon(url) {
     }
 }
 
-urlInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && activeTabId) {
-        let url = urlInput.value.trim();
-        if (!url.startsWith("http")) url = "https://" + url;
-    
-        const uvURL = search(url, "https://www.google.com/search?q=%s");
+function updateFavicon(iframe = getActiveIframe()) {
+    if (!iframe) return;
 
-        const tab = tabs.find(t => t.id === activeTabId);
-        if (tab) {
-            tab.iframe.src = __uv$config.prefix + __uv$config.encodeUrl(uvURL);;
-            tab.url = url;
-            tab.tab.querySelector("img.favicon").src = getFavicon(url);
-            try {
-                tab.tab.querySelector("span").textContent = new URL(url).hostname;
-            } catch {
-                tab.tab.querySelector("span").textContent = "New Tab";
-            }
-            saveTabs();
-        }
+    try {
+        const doc = iframe.contentDocument;
+        const icon = doc.querySelector("link[rel~='icon']");
+        const url = icon ? new URL(icon.href, iframe.src).href : getDefaultFavicon(iframe.src);
+        setTabFavicon(iframe, url);
+    } catch (err) {
+        setTabFavicon(iframe, getDefaultFavicon(iframe.src));
     }
-});
+}
+
+function getDefaultFavicon(pageUrl) {
+    try {
+        const url = new URL(pageUrl);
+        return `${url.origin}/favicon.ico`;
+    } catch {
+        return "/favicon.ico";
+    }
+}
+
+function setTabFavicon(iframe, faviconUrl) {
+    const tab = document.querySelector(`[data-iframe-id="${iframe.dataset.id}"]`);
+    if (tab) {
+        const faviconImg = tab.querySelector(".tab-favicon");
+        if (faviconImg) faviconImg.src = faviconUrl;
+    }
+}
 
 function toggleTheme() {
     document.body.classList.toggle("dark");
@@ -469,5 +508,123 @@ function handleDrop(e, targetTabId) {
     saveTabs();
 }
 
+function copyIframeURL() {
+    const iframe = getActiveIframe();
+    if (iframe) {
+        const url = iframe.src;
+        navigator.clipboard.writeText(url);
+        alert("URL copied to clipboard!");
+    }
+}
+
+function setupIframeContextMenu(iframe) {
+    iframe.contentWindow.document.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        const rect = iframe.getBoundingClientRect();
+        const x = e.clientX + rect.left;
+        const y = e.clientY + rect.top;
+
+        contextMenu.style.left = `${x}px`;
+        contextMenu.style.top = `${y}px`;
+        contextMenu.style.display = "block";
+        
+        contextMenu.style.opacity = 0;
+        contextMenu.style.transform = "translateY(-10px)";
+        
+        requestAnimationFrame(() => {
+            contextMenu.style.opacity = 1;
+            contextMenu.style.transform = "translateY(0)";
+        });
+    });
+    
+    iframe.addEventListener("load", () => {
+        try {
+            iframe.contentWindow.document.addEventListener("contextmenu", (e) => {
+                e.preventDefault();
+                const rect = iframe.getBoundingClientRect();
+                const x = e.clientX + rect.left;
+                const y = e.clientY + rect.top;
+
+                contextMenu.style.left = `${x}px`;
+                contextMenu.style.top = `${y}px`;
+                contextMenu.style.display = "block";
+                
+                contextMenu.style.opacity = 0;
+                contextMenu.style.transform = "translateY(-10px)";
+                
+                requestAnimationFrame(() => {
+                    contextMenu.style.opacity = 1;
+                    contextMenu.style.transform = "translateY(0)";
+                });
+            });
+        } catch (err) {
+            console.warn("Cross-origin iframe context menu not accessible.");
+        }
+    });
+}
+
+function startLoadingBar() {
+    const bar = document.getElementById("loadingBar");
+    bar.classList.remove("done");
+    bar.classList.add("active");
+}
+
+function completeLoadingBar() {
+    const bar = document.getElementById("loadingBar");
+    bar.classList.remove("active");
+    bar.classList.add("done");
+
+    setTimeout(() => {
+        bar.classList.remove("done");
+        bar.style.width = "0%";
+    }, 500);
+}
+
+function setupIframeLoading(iframe) {
+    iframe.addEventListener("load", () => {
+        completeLoadingBar();
+        updateFavicon(iframe);
+    });
+
+    iframe.addEventListener("beforeunload", () => {
+        startLoadingBar();
+    });
+}
+
 //loadTabs();
 createTab();
+
+document.addEventListener("click", () => {
+    contextMenu.style.display = "none";
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+    extensions.forEach(url => {
+        const script = document.createElement("script");
+        script.src = url;
+        document.body.appendChild(script);
+    });
+    renderExtensionList();
+});
+
+urlInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && activeTabId) {
+        let url = urlInput.value.trim();
+        if (!url.startsWith("http")) url = "https://" + url;
+    
+        const uvURL = search(url, "https://www.google.com/search?q=%s");
+
+        const tab = tabs.find(t => t.id === activeTabId);
+        if (tab) {
+            tab.iframe.src = __uv$config.prefix + __uv$config.encodeUrl(uvURL);;
+            tab.url = url;
+            tab.tab.querySelector("img.favicon").src = getFavicon(url);
+            try {
+                tab.tab.querySelector("span").textContent = new URL(url).hostname;
+            } catch {
+                tab.tab.querySelector("span").textContent = "New Tab";
+            }
+            saveTabs();
+        }
+    }
+});
