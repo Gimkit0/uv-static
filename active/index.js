@@ -1,7 +1,7 @@
 "use strict";
 
 // register-sw.js
-const stockSW = "https://gimkit0.github.io/uv-static/active/uv-sw.js";
+const stockSW = "s.js";
 const swAllowedHostnames = ["localhost", "127.0.0.1"];
 
 async function registerSW() {
