@@ -1,4 +1,4 @@
-fefwewefewefwefewefwwconst uvSW = "https://gimkit0.github.io/uv-static/active/uv/uv.sw.js";
+const uvSW = "https://gimkit0.github.io/uv-static/active/uv/uv.sw.js";
 const uvBundle = "https://gimkit0.github.io/uv-static/active/uv/uv.bundle.js";
 
 const swAllowedHostnames = ["localhost", "127.0.0.1"];
