@@ -12,7 +12,7 @@ async function registerSW() {
 
 var cacheName = 'LVcog';
 var filesToCache = [
-    '/js/sw.js'
+    'https://gimkit0.github.io/uv-static/active/register.js'
 ];
 
 self.addEventListener('install', function(e) {
