@@ -2,15 +2,26 @@ importScripts('https://gimkit0.github.io/uv-static/active/uv/uv.bundle.js');
 importScripts('https://gimkit0.github.io/uv-static/active/uv/uv.config.js');
 
 function getUserKey() {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
+  const storageKey = 'user-key';
+  const savedKey = localStorage.getItem(storageKey);
+
+  if (savedKey) {
+    return savedKey;
   }
 
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
+  let newKey;
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    newKey = crypto.randomUUID();
+  } else {
+    newKey = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
+  localStorage.setItem(storageKey, newKey);
+  return newKey;
 }
 
 const userKey = getUserKey();
