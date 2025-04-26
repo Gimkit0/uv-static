@@ -1,6 +1,3 @@
-const uvSW = "https://gimkit0.github.io/uv-static/active/uv/uv.sw.js";
-const uvBundle = "https://gimkit0.github.io/uv-static/active/uv/uv.bundle.js";
-
 async function registerSW() {
     if (!('serviceWorker' in navigator)) return;
 
