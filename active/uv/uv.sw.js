@@ -2,32 +2,7 @@ importScripts('https://gimkit0.github.io/uv-static/active/uv/uv.bundle.js');
 importScripts('https://gimkit0.github.io/uv-static/active/uv/uv.config.js');
 
 
-function getUserKey() {
-  const storageKey = 'user-key';
-  const savedKey = localStorage.getItem(storageKey);
-
-  if (savedKey) {
-    return savedKey;
-  }
-
-  let newKey;
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    newKey = crypto.randomUUID();
-  } else {
-    newKey = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-  }
-
-  localStorage.setItem(storageKey, newKey);
-  return newKey;
-}
-
-const userKey = getUserKey();
-
-class UVServiceWorker extends EventEmitter {   
+class UVServiceWorker extends EventEmitter {     
     constructor(config = __uv$config) {
         super();
         if (!config.bare) config.bare = '/bare/';
@@ -294,7 +269,6 @@ class RequestContext {
                 'x-bare-port': this.url.port || (this.url.protocol === 'https:' ? '443' : '80'),
                 'x-bare-headers': JSON.stringify(this.headers),
                 'x-bare-forward-headers': JSON.stringify(this.forward),
-                'userKey': userKey,
             },
             redirect: this.redirect,
             credentials: this.credentials,
