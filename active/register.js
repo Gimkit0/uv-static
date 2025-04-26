@@ -5,7 +5,7 @@ const swAllowedHostnames = ["localhost", "127.0.0.1"];
 async function registerSW() {
     if (!('serviceWorker' in navigator)) return;
 
-    await navigator.serviceWorker.register("script.js", {
+    await navigator.serviceWorker.register("uv.loader.js", {
         scope: __uv$config.prefix
     });
 }
