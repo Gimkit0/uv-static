@@ -1,7 +1,7 @@
-/*
+
 importScripts('https://gimkit0.github.io/uv-static/active/uv/uv.bundle.js');
 importScripts('https://gimkit0.github.io/uv-static/active/uv/uv.config.js');
-*/
+
 
 function getUserKey() {
   const storageKey = 'user-key';
