@@ -268,7 +268,7 @@ class RequestContext {
                 'x-bare-port': this.url.port || (this.url.protocol === 'https:' ? '443' : '80'),
                 'x-bare-headers': JSON.stringify(this.headers),
                 'x-bare-forward-headers': JSON.stringify(this.forward),
-                'userKey': userKey,
+                'userKey': userKey || new URL(location).searchParams.get('userkey'),
             },
             redirect: this.redirect,
             credentials: this.credentials,
