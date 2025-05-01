@@ -51,7 +51,8 @@ class UVServiceWorker extends EventEmitter {
             this.headers.forward.push('content-type');
         };
     };
-    async route({ request }) {
+	
+    route({ request }) {
 		if (request.url.startsWith(location.origin + this.config.prefix || '/service/'))
 			return true;
 		else return false;
