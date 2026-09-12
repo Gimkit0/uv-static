@@ -21,19 +21,21 @@
     (async () => {
       // Step 1: Register service worker
       if ('serviceWorker' in navigator) {
-        await navigator.serviceWorker.register('scramjet/main.js', {
-          scope: '/scramjet/',
+        await navigator.serviceWorker.register('/uv-static/scramjet/main.js', {
+          scope: '/uv-static/scramjet/',
         });
       }
-
+      
       // Step 2: Wait for service worker to be ready
       await navigator.serviceWorker.ready;
-
+      
       // Step 3: Initialize Scramjet controller
       const { ScramjetController } = $scramjetLoadController();
+      
       const scramjet = new ScramjetController({
-        prefix: '/scramjet/',
+        prefix: '/uv-static/scramjet/',
       });
+      
       await scramjet.init();
 
       // Step 4: Create frame
