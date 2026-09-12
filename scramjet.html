@@ -24,23 +24,31 @@
     // Step 1: Register service worker
     console.log(PATH + 'scramjet.all.js');
 
-    const registration = await navigator.serviceWorker.register(
-      PATH + 'scramjet.all.js',
-      {
-        scope: PATH,
-      }
-    );
+    let registration;
 
-    // Step 2: Wait for service worker to be ready
-
-    console.log("Registration:", registration);
-    console.log("Active:", registration.active);
-    console.log("Installing:", registration.installing);
-    console.log("Waiting:", registration.waiting);
-    console.log("Controller:", navigator.serviceWorker.controller);
+    if ('serviceWorker' in navigator) {
+      registration = await navigator.serviceWorker.register(
+        PATH + 'scramjet.all.js',
+        {
+          scope: PATH,
+        }
+      );
     
-    await navigator.serviceWorker.ready;
-    console.log("Service worker ready");
+      console.log("Service worker registration:", registration);
+    
+      // Wait for THIS registration to become active
+      if (registration.installing) {
+        await new Promise((resolve, reject) => {
+          registration.installing.addEventListener('statechange', () => {
+            if (registration.installing.state === 'activated') {
+              resolve();
+            }
+          });
+        });
+      }
+    }
+    
+    console.log("Service worker active:", registration.active);
 
     // Step 3: Initialize Scramjet controller
     const { ScramjetController } = $scramjetLoadController();
