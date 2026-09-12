@@ -18,12 +18,12 @@
   <div id="frameContainer"></div>
 
   <script>
-    const PATH = "/uv-static/"
+    const PATH = "/uv-static/scramjet/"
 
     (async () => {
       // Step 1: Register service worker
       if ('serviceWorker' in navigator) {
-        await navigator.serviceWorker.register(PATH + '/scramjet/scramjet.all.js', {
+        await navigator.serviceWorker.register(PATH + 'scramjet.all.js', {
           scope: PATH,
         });
       }
