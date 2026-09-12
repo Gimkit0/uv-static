@@ -18,25 +18,25 @@
   <div id="frameContainer"></div>
 
   <script>
+    const PATH = "/uv-static/"
+
     (async () => {
       // Step 1: Register service worker
       if ('serviceWorker' in navigator) {
-        await navigator.serviceWorker.register('/uv-static/scramjet/main.js', {
-          scope: '/uv-static/scramjet/',
+        await navigator.serviceWorker.register(PATH + '/scramjet/scramjet.all.js', {
+          scope: PATH,
         });
       }
-      
+
       // Step 2: Wait for service worker to be ready
       await navigator.serviceWorker.ready;
       console.log("Service worker ready")
-      
+
       // Step 3: Initialize Scramjet controller
       const { ScramjetController } = $scramjetLoadController();
-      
       const scramjet = new ScramjetController({
-        prefix: '/uv-static/scramjet/',
+        prefix: PATH,
       });
-      
       await scramjet.init();
       console.log("Scramjet loaded")
 
