@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Scramjet Example</title>
+  <style>
+    iframe {
+      width: 100%;
+      height: 600px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <input type="text" id="urlInput" placeholder="Enter URL" />
+    <button id="goBtn">Go</button>
+  </div>
+  <div id="frameContainer"></div>
+
+  <script>
+    (async () => {
+      // Step 1: Register service worker
+      if ('serviceWorker' in navigator) {
+        await navigator.serviceWorker.register('https://gimkit0.github.io/uv-static/scramjet/main.js', {
+          scope: '/scramjet/',
+        });
+      }
+
+      // Step 2: Wait for service worker to be ready
+      await navigator.serviceWorker.ready;
+
+      // Step 3: Initialize Scramjet controller
+      const { ScramjetController } = $scramjetLoadController();
+      const scramjet = new ScramjetController({
+        prefix: '/scramjet/',
+      });
+      await scramjet.init();
+
+      // Step 4: Create frame
+      const frame = scramjet.createFrame();
+      document.getElementById('frameContainer').appendChild(frame.frame);
+
+      // Step 5: Set up navigation controls
+      const urlInput = document.getElementById('urlInput');
+      const goBtn = document.getElementById('goBtn');
+
+      goBtn.addEventListener('click', () => {
+        const url = urlInput.value;
+        if (url) {
+          frame.go(url);
+        }
+      });
+
+      // Navigate on Enter key
+      urlInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          goBtn.click();
+        }
+      });
+
+      // Optional: Listen for URL changes
+      frame.addEventListener('urlchange', (event) => {
+        console.log('URL changed to:', event.url);
+        urlInput.value = event.url;
+      });
+    })();
+  </script>
+</body>
+</html>
