@@ -1,80 +1,11 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Scramjet Example</title>
-  <style>
-    iframe {
-      width: 100%;
-      height: 600px;
-      border: 1px solid #ccc;
-    }
-  </style>
-</head>
-<body>
-  <div id="controls">
-    <input type="text" id="urlInput" placeholder="Enter URL" />
-    <button id="goBtn">Go</button>
-  </div>
-  <div id="frameContainer"></div>
-
-  <script>
-  const PATH = "/uv-static/scramjet/";
-
-  (async () => {
-    // Step 1: Register service worker
-    console.log(PATH + 'scramjet.all.js');
-
-    if ('serviceWorker' in navigator) {
-      await navigator.serviceWorker.register(PATH + 'scramjet.all.js', {
-        scope: PATH,
-      });
-    }
-
-    // Step 2: Wait for service worker to be ready
-    await navigator.serviceWorker.ready;
-    console.log("Service worker ready");
-
-    // Step 3: Initialize Scramjet controller
-    const { ScramjetController } = $scramjetLoadController();
-
-    const scramjet = new ScramjetController({
-      prefix: PATH,
-    });
-
-    await scramjet.init();
-    console.log("Scramjet loaded");
-
-    // Step 4: Create frame
-    const frame = scramjet.createFrame();
-    document
-      .getElementById('frameContainer')
-      .appendChild(frame.frame);
-
-    // Step 5: Set up navigation controls
-    const urlInput = document.getElementById('urlInput');
-    const goBtn = document.getElementById('goBtn');
-
-    goBtn.addEventListener('click', () => {
-      const url = urlInput.value;
-
-      if (url) {
-        frame.go(url);
-      }
-    });
-
-    // Navigate on Enter key
-    urlInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        goBtn.click();
-      }
-    });
-
-    // Listen for URL changes
-    frame.addEventListener('urlchange', (event) => {
-      console.log('URL changed to:', event.url);
-      urlInput.value = event.url;
-    });
-  })();
-</script>
-</body>
+  <head>
+    <title>Scramjet Proxy</title>
+  </head>
+  <body>
+    <div id="container"></div>
+    <script src="/scramjet/scramjet.bundle.js"></script>
+    <script src="/app.js"></script>
+  </body>
 </html>
