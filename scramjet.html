@@ -31,6 +31,13 @@
     }
 
     // Step 2: Wait for service worker to be ready
+
+    console.log("Registration:", registration);
+    console.log("Active:", registration.active);
+    console.log("Installing:", registration.installing);
+    console.log("Waiting:", registration.waiting);
+    console.log("Controller:", navigator.serviceWorker.controller);
+    
     await navigator.serviceWorker.ready;
     console.log("Service worker ready");
 
