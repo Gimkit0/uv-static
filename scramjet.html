@@ -28,6 +28,7 @@
       
       // Step 2: Wait for service worker to be ready
       await navigator.serviceWorker.ready;
+      console.log("Service worker ready")
       
       // Step 3: Initialize Scramjet controller
       const { ScramjetController } = $scramjetLoadController();
@@ -37,6 +38,7 @@
       });
       
       await scramjet.init();
+      console.log("Scramjet loaded")
 
       // Step 4: Create frame
       const frame = scramjet.createFrame();
